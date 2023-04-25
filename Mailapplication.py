@@ -1,59 +1,60 @@
 import tkinter as tk
 import smtplib
 
-class MailApp(tk.Frame):
-    def __init__(self, master):
-        super().__init__(master)
-        self.master = master
-        self.master.title("Mail Application")
-        self.pack(fill=tk.BOTH, expand=True)
-        self.create_widgets()
-
-    def create_widgets(self):
-        # Create labels
-        tk.Label(self, text="From:").grid(row=0, column=0, padx=5, pady=5, sticky=tk.W)
-        tk.Label(self, text="To:").grid(row=1, column=0, padx=5, pady=5, sticky=tk.W)
-        tk.Label(self, text="Subject:").grid(row=2, column=0, padx=5, pady=5, sticky=tk.W)
-        tk.Label(self, text="Message:").grid(row=3, column=0, padx=5, pady=5, sticky=tk.W)
-
-        # Create entry widgets
-        self.from_entry = tk.Entry(self)
-        self.from_entry.grid(row=0, column=1, padx=5, pady=5)
-        self.to_entry = tk.Entry(self)
-        self.to_entry.grid(row=1, column=1, padx=5, pady=5)
-        self.subject_entry = tk.Entry(self)
-        self.subject_entry.grid(row=2, column=1, padx=5, pady=5)
-        self.message_text = tk.Text(self, height=10, width=50)
-        self.message_text.grid(row=3, column=1, padx=5, pady=5)
-
-        # Create send button
-        self.send_button = tk.Button(self, text="Send", command=self.send_mail)
-        self.send_button.grid(row=4, column=1, padx=5, pady=5)
-
-    def send_mail(self):
-        # Get values from entry widgets
-        sender = self.from_entry.get()
-        receiver = self.to_entry.get()
-        subject = self.subject_entry.get()
-        message = self.message_text.get("1.0", tk.END)
-
-        # Connect to SMTP server
+def send_email():
+    try:
+        # Set up email server and login credentials
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login(sender, 'your_password_here')
-
-        # Compose and send email
-        email = f"From: {sender}\nTo: {receiver}\nSubject: {subject}\n\n{message}"
-        server.sendmail(sender, receiver, email)
+        server.login(sender_email.get(), password.get())
+        
+        # Create message and send email
+        message = f'Subject: {subject.get()}\n\n{body.get("1.0", "end")}'
+        server.sendmail(sender_email.get(), recipient_email.get(), message)
         server.quit()
+        
+        # Clear form and show success message
+        subject.delete(0, "end")
+        body.delete("1.0", "end")
+        status_label.config(text="Email sent successfully!", fg="green")
+    except:
+        # Show error message if email sending fails
+        status_label.config(text="Email sending failed. Check login credentials and try again.", fg="red")
 
-        # Clear entry widgets and message text
-        self.from_entry.delete(0, tk.END)
-        self.to_entry.delete(0, tk.END)
-        self.subject_entry.delete(0, tk.END)
-        self.message_text.delete("1.0", tk.END)
+# Create main window and form
+window = tk.Tk()
+window.title("Mail Application")
 
-if __name__ == '__main__':
-    root = tk.Tk()
-    app = MailApp(root)
-    root.mainloop()
+sender_label = tk.Label(window, text="Sender Email")
+sender_label.pack()
+sender_email = tk.Entry(window)
+sender_email.pack()
+
+password_label = tk.Label(window, text="Password")
+password_label.pack()
+password = tk.Entry(window, show="*")
+password.pack()
+
+recipient_label = tk.Label(window, text="Recipient Email")
+recipient_label.pack()
+recipient_email = tk.Entry(window)
+recipient_email.pack()
+
+subject_label = tk.Label(window, text="Subject")
+subject_label.pack()
+subject = tk.Entry(window)
+subject.pack()
+
+body_label = tk.Label(window, text="Body")
+body_label.pack()
+body = tk.Text(window, height=10)
+body.pack()
+
+send_button = tk.Button(window, text="Send Email", command=send_email)
+send_button.pack()
+
+status_label = tk.Label(window, text="")
+status_label.pack()
+
+# Start the main event loop
+window.mainloop()
